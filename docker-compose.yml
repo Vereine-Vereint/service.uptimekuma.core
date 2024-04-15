@@ -1,22 +1,23 @@
 networks:
-  default:
+  # default:
   traefik:
     external: true
 
 services:
   example:
-    image: whoami
+    image: louislam/uptime-kuma:1-alpine
     restart: unless-stopped
     # ports:
-    #   - 80:80 # Port of service
+    #   - 3001:3001
     volumes:
-    # use generated folder for generated templates
-    - ./generated/example:/example:ro # generated template "named example"
     # use volumes folder for data persistance
-    - ./volumes/test:/test # volume "test" for service
-    env_file:
-    - ../${ENV_FILE} # load selected environment file
+    - ./volumes/data:/app/data
 
     networks:
     - traefik # add to traefik network
-    - default # add to default (stack internal) network
+    # - default # add to default (stack internal) network
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uptimekuma.rule=Host(`${UPTIMEKUMA_DOMAIN}`)"
+      - "traefik.http.routers.uptimekuma.entrypoints=websecure"
