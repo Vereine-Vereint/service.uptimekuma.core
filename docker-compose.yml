@@ -1,10 +1,10 @@
 networks:
-  # default:
+  default:
   traefik:
     external: true
 
 services:
-  example:
+  uptimekuma:
     image: louislam/uptime-kuma:1-alpine
     restart: unless-stopped
     # ports:
@@ -13,9 +13,19 @@ services:
     # use volumes folder for data persistance
     - ./volumes/data:/app/data
 
+  uptimekuma-authentik-proxy:
+    image: ghcr.io/goauthentik/proxy
+    # ports:
+    #     - 9000:9000
+    #     - 9443:9443
+    environment:
+        AUTHENTIK_HOST: https://${AUTHENTIK_DOMAIN}
+        AUTHENTIK_INSECURE: "false"
+        AUTHENTIK_TOKEN: ${AUTHENTIK_TOKEN}
+
     networks:
     - traefik # add to traefik network
-    # - default # add to default (stack internal) network
+    - default # add to default (stack internal) network
 
     labels:
       - "traefik.enable=true"
